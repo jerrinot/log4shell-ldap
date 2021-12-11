@@ -36,6 +36,7 @@ public class Main {
 }`)
 	fmt.Println("----")
 	ldapServer := startLdapServer()
+	startHttpServer()
 
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
