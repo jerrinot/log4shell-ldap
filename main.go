@@ -18,6 +18,7 @@ import (
 )
 
 //go:embed evilfactory-1.0-SNAPSHOT.jar
+//go:embed index.html
 var jar embed.FS
 
 func main() {
