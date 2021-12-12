@@ -11,7 +11,6 @@ WORKDIR /
 COPY go.* ./
 RUN go mod download
 COPY main.go .
-COPY index.html .
 COPY --from=javabuilder /build/target/evilfactory-1.0-SNAPSHOT.jar .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -tags app -o app -ldflags '-w' .
 
