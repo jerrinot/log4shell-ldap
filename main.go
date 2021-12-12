@@ -6,6 +6,7 @@ import (
 	"github.com/logrusorgru/aurora"
 	"github.com/lor00x/goldap/message"
 	ldap "github.com/vjeantet/ldapserver"
+	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -52,6 +53,7 @@ public class Main {
 }
 
 func startLdapServer() *ldap.Server {
+	ldap.Logger = log.New(ioutil.Discard, "", log.LstdFlags)
 	server := ldap.NewServer()
 	routes := ldap.NewRouteMux()
 	routes.Search(handleSearch)
