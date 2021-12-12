@@ -31,3 +31,6 @@ jobs:
 
       - name: Run 'staticcheck'
         run: staticcheck ./...
+        
+      - name: Verify if Docker image is buildable
+        run: docker build . -t log4shell
