@@ -14,10 +14,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"reflect"
 	"strings"
 	"syscall"
-	"unsafe"
 )
 
 //go:embed evilfactory-1.0-SNAPSHOT.jar
@@ -150,12 +148,7 @@ func getOwnAddress(m *ldap.Message) string {
 	if publicHost != "" {
 		return publicHost
 	}
-	foo := m.Client
-	rs := reflect.ValueOf(foo).Elem()
-	rf := rs.Field(2)
-	rf = reflect.NewAt(rf.Type(), unsafe.Pointer(rf.UnsafeAddr())).Elem()
-	con := rf.Interface().(net.Conn)
-	return strings.Split(con.LocalAddr().String(), ":")[0]
+	return strings.Split(m.Client.GetConn().LocalAddr().String(), ":")[0]
 }
 
 func handleSearch(w ldap.ResponseWriter, m *ldap.Message) {
