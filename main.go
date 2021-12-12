@@ -31,7 +31,7 @@ func main() {
 	ldapServer := startLdapServer()
 	startHttpServer()
 
-	ch := make(chan os.Signal)
+	ch := make(chan os.Signal, 2)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	<-ch
 	close(ch)
