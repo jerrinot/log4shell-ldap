@@ -1,7 +1,38 @@
 name: main
 on: [push]
 jobs:
-  core:
+  build-jar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Setup JDK 8
+        uses: actions/setup-java@v2
+        with:
+          distribution: adopt
+          java-version: 8
+      - name: Create 'build' directory
+        run: mkdir -p build/src/main/java/info/jerrinot/log4shell/evilfactory
+      - name: Copy Java files
+        run: cp java/EvilFactory.java build/src/main/java/info/jerrinot/log4shell/evilfactory/
+      - name: Copy 'pom.xml' file
+        run: cp java/pom.xml build/
+      - name: Build the jar file
+        run: mvn package
+        working-directory: build
+      - name: Move the jar file to the main directory
+        run: mv build/target/evilfactory-1.0-SNAPSHOT.jar .
+      - name: Initialize git config with last commit author's data
+        run: |
+          git config --local user.email "$(git log --format='%ae' HEAD^!)"
+          git config --local user.name "$(git log --format='%an' HEAD^!)"
+      - name: Commit and push the artifact
+        run: |
+          git add -f evilfactory-1.0-SNAPSHOT.jar
+          git commit -m "Add evilfactory-1.0-SNAPSHOT.jar"
+          git push
+
+  build-go:
+    needs: build-jar
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,6 +62,6 @@ jobs:
 
       - name: Run 'staticcheck'
         run: staticcheck ./...
-        
+
       - name: Verify if Docker image is buildable
         run: docker build . -t log4shell
