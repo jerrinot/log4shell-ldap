@@ -56,4 +56,10 @@ with containerized builds, but harder when building outside containers.
 on recent Java updates. 
 
 ## Disclaimer
-This is an educational tool intended for checking various log4shell mitigations. 
+This is an educational tool created purely for purposes of checking various log4shell mitigations and is not intended
+to be used to attack systems except where explicitly authorized. 
+Author is not responsible or liable for misuse of the software. Use responsibly.
+
+## Credits
+- [yoserial project](https://github.com/frohoff/ysoserial) for the disclaimer:)
+- Examples in the [goldap project](https://github.com/vjeantet/ldapserver/blob/9f1711e226a4d7984fd4c9d341a13537a38546a7/examples/complex/main.go). I used the Complex example as a template.
