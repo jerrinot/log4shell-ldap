@@ -18,3 +18,5 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -tags app -o app -ldflags '-w' .
 FROM scratch
 COPY --from=gobuilder /app /app
 ENTRYPOINT ["/app"]
+EXPOSE 3000
+EXPOSE 1389

