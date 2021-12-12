@@ -1,0 +1,33 @@
+name: main
+on: [push]
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: [1.17.x]
+    name: Build with Go ${{ matrix.go-version }}
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - name: Install Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Install staticcheck
+        run: go get -u golang.org/x/tools/... && go get honnef.co/go/tools/cmd/staticcheck
+
+      - name: Run 'go vet'
+        run: go vet ./...
+
+      - name: Run 'staticcheck'
+        run: staticcheck ./...
