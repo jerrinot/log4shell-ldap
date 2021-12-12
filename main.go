@@ -130,7 +130,7 @@ func handleIndex(w http.ResponseWriter, req *http.Request) {
 	host := req.Host
 	host = strings.Split(host, ":")[0]
 	ldapUrl := aurora.Green(fmt.Sprintf("${jndi:ldap://%s:1389/probably_not_vulnerable}", host))
-	io.WriteString(w, fmt.Sprintf("To test an application try to make log4j print %s\n", ldapUrl))
+	io.WriteString(w, fmt.Sprintf("To test an application make log4j to print %s\n", ldapUrl))
 }
 
 func startHttpServer() {
