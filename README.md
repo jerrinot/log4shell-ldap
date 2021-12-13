@@ -43,7 +43,8 @@ The application has 3 possible outcomes:
 - Prints _totally pwned!_. This is happening when a vulnerable log4j2 version is executed on old Java.
    This is the worst case as it allows a very simple arbitrary remote code execution.
 - Prints _Reference Class Name: probably vulnerable_. This means a vulnerable log4j2 version is executed on recent Java.
-   This makes it a bit harder to abuse the vulnerability, but RCE may still be possible and there is also a risk of DoS.
+   This makes it a bit harder to abuse the vulnerability, but RCE may still be possible. There are also information disclosure & DoS issues.
+   To avoid any possible ambiguity: Don't rely on recent Java. Upgrade your log4j2 to >=2.15.0. 
 - Prints _${jndi:ldap://<IP>:1389/probably_not_vulnerable}_
    This means the application is either not vulnerable or the test is misconfigured :)
 
