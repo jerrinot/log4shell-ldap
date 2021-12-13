@@ -54,8 +54,6 @@ how it works on other platforms.
 
 
 ## TODO
-- Local build. The build relies on JAR being available at the compilation time. This is trivial to achieve
-with containerized builds, but harder when building outside containers.
 - Refactoring. The code is simply hideous. 
 - Public container into DockerHub. Is this a good idea?
 - Include Gadgets from the [yoserial project](https://github.com/frohoff/ysoserial) to try to RCE when running 
