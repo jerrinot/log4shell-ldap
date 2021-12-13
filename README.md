@@ -47,6 +47,12 @@ The application has 3 possible outcomes:
 - Prints _${jndi:ldap://<IP>:1389/probably_not_vulnerable}_
    This means the application is either not vulnerable or the test is misconfigured :)
 
+## Development Setup
+To compile the tool outside a container you have to build Java payload first. You can do this by running
+a script prepareLocalEnv.sh. This requires JDK8 to be available. The script was tested on Linux only, I appreciate reports
+how it works on other platforms.
+
+
 ## TODO
 - Local build. The build relies on JAR being available at the compilation time. This is trivial to achieve
 with containerized builds, but harder when building outside containers.
