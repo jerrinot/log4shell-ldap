@@ -67,4 +67,4 @@ Author is not responsible or liable for misuse of the software. Use responsibly.
 
 ## Credits
 - [yoserial project](https://github.com/frohoff/ysoserial) for the disclaimer:)
-- Examples in the [goldap project](https://github.com/vjeantet/ldapserver/blob/9f1711e226a4d7984fd4c9d341a13537a38546a7/examples/complex/main.go). I used the Complex example as a template.
+- Examples in the [ldapserver project](https://github.com/vjeantet/ldapserver/blob/9f1711e226a4d7984fd4c9d341a13537a38546a7/examples/complex/main.go). I used the Complex example as a template.
